@@ -12,9 +12,8 @@
 token=
 
 
-; guild_name - Server's name. If you modify your server's name, the change
-; must be done in this file too.
-guild_name=
+; guild_id - Server's id. Enable developer and copy the id
+guild_id=
 
 ; channels_name - Server's channel. If you modify your channel's name, the
 ; change must be done in this file too.
