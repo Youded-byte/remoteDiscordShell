@@ -18,7 +18,7 @@ __version__ = "v1.1.2"
 
 
 TOKEN = None
-GUILD_NAME = None             # Server's name
+GUILD_ID = None             # Server's name
 CHANNELS_NAME = []            # Server's channels
 PASSWORD = None
 SHARED_FOLDER = None          # Shared files storage folder path
@@ -52,13 +52,13 @@ def format_as_code(msg, inline = False):
         return f"""```""" + msg + """```"""
 
 def load_config(config_file):
-    global TOKEN, GUILD_NAME, CHANNELS_NAME, PASSWORD, SHARED_FOLDER, \
+    global TOKEN, GUILD_ID, CHANNELS_NAME, PASSWORD, SHARED_FOLDER, \
            USERS_FILE, LOG_FILE, LOG_LIMIT, ENABLE_ROOT, FORBIDDEN_COMMANDS, \
            UPDATE_COMMAND, UPGRADE_COMMAND, INSTALL_COMMAND, REMOVE_COMMAND
     config = configparser.ConfigParser()
     config.read(config_file)
     TOKEN = config.get('GENERAL', 'token')
-    GUILD_NAME = config.get('GENERAL', 'guild_name')
+    GUILD_ID = config.get('GENERAL', 'guild_id')
     CHANNELS_NAME = json.loads(config.get('GENERAL', 'channels_name'))
     PASSWORD = config.get('GENERAL', 'password')
     SHARED_FOLDER = config.get('FILES', 'shared_folder')
@@ -107,7 +107,7 @@ def initialize():
 
 
 def check_config():
-    global TOKEN, GUILD_NAME, CHANNELS_NAME, PASSWORD, SHARED_FOLDER, \
+    global TOKEN, GUILD_ID, CHANNELS_NAME, PASSWORD, SHARED_FOLDER, \
            USERS_FILE, LOG_FILE, LOG_LIMIT, ENABLE_ROOT, FORBIDDEN_COMMANDS, \
            UPDATE_COMMAND, UPGRADE_COMMAND, INSTALL_COMMAND, REMOVE_COMMAND
 
@@ -115,7 +115,7 @@ def check_config():
     error_msg = "Config file not properly filled, errors:"
     if not CHANNELS_NAME or len(CHANNELS_NAME) <= 0:
             error = True
-            error_msg += "\n- Channel name field is empty."
+            error_msg += "\n- Channel id field is empty."
     if not PASSWORD or len(PASSWORD) <= 0:
             error = True
             error_msg += "\n- Password field is empty."
@@ -265,7 +265,7 @@ async def update_system(message):
     output_text = "Updating system"
     loading_items = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
     i = 0
-    guild = discord.utils.get(CLIENT.guilds, name=GUILD_NAME)
+    guild = discord.utils.get(CLIENT.guilds, id=GUILD_ID)
     channel = discord.utils.get(guild.channels, name=CHANNELS_NAME[0],
                                 type=discord.ChannelType.text)
     msg_output = await channel.send(output_text)
@@ -306,7 +306,7 @@ async def upgrade_system(message):
     output_text = "Upgrading system"
     loading_items = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
     i = 0
-    guild = discord.utils.get(CLIENT.guilds, name=GUILD_NAME)
+    guild = discord.utils.get(CLIENT.guilds, id=GUILD_ID)
     channel = discord.utils.get(guild.channels, name=CHANNELS_NAME[0],
                                 type=discord.ChannelType.text)
     msg_output = await channel.send(output_text)
@@ -347,7 +347,7 @@ async def install_package(message):
     output_text = "Installing package: " + message.content
     loading_items = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
     i = 0
-    guild = discord.utils.get(CLIENT.guilds, name=GUILD_NAME)
+    guild = discord.utils.get(CLIENT.guilds, id=GUILD_ID)
     channel = discord.utils.get(guild.channels, name=CHANNELS_NAME[0],
                                 type=discord.ChannelType.text)
     msg_output = await channel.send(output_text)
@@ -396,7 +396,7 @@ async def remove_package(message):
     output_text = "Removing package: " + message.content
     loading_items = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
     i = 0
-    guild = discord.utils.get(CLIENT.guilds, name=GUILD_NAME)
+    guild = discord.utils.get(CLIENT.guilds, id=GUILD_ID)
     channel = discord.utils.get(guild.channels, name=CHANNELS_NAME[0],
                                 type=discord.ChannelType.text)
     msg_output = await channel.send(output_text)
@@ -458,13 +458,13 @@ async def on_ready():
     """
     global IN_GUILD
 
-    guild = discord.utils.get(CLIENT.guilds, name=GUILD_NAME)
+    guild = discord.utils.get(CLIENT.guilds, id=GUILD_ID)
     if guild:
         IN_GUILD = True
-        print(f"Server {GUILD_NAME} found! running...")
+        print(f"Server {GUILD_ID} found! running...")
         await send_welcome_msg(guild)
         return
-    print(f"Server {GUILD_NAME} not found...")
+    print(f"Server {GUILD_ID} not found...")
     exit()
 
 
@@ -687,7 +687,7 @@ async def on_message(message):
         await message.channel.send("Currently forbidden commands:")
         await show_forbidden_commands(message)
     elif message.content.lower() == '/help':    # Show help message
-        guild = discord.utils.get(CLIENT.guilds, name=GUILD_NAME)
+        guild = discord.utils.get(CLIENT.guilds, id=GUILD_ID)
         await send_welcome_msg(guild)
     elif message.content.lower() == '/reload':    # Reload config file
         initialize()
