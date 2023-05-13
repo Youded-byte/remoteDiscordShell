@@ -45,6 +45,12 @@ INSTALL_COMMAND = None        # Command used to install a package
 REMOVE_COMMAND = None         # Command used to remove a package
 
 
+def format_as_code(msg, inline = False):
+    if inline:
+        return f"""`""" + msg + """`"""
+    else:
+        return f"""```""" + msg + """```"""
+
 def load_config(config_file):
     global TOKEN, GUILD_NAME, CHANNELS_NAME, PASSWORD, SHARED_FOLDER, \
            USERS_FILE, LOG_FILE, LOG_LIMIT, ENABLE_ROOT, FORBIDDEN_COMMANDS, \
@@ -237,7 +243,7 @@ def register_log(message):
 
 async def ask_password(message):
     await message.author.create_dm()
-    await message.author.dm_channel.send("Enter sudo password.")
+    await message.author.dm_channel.send("Enter " + format_as_code("sudo", True) + " password.")
 
 
 def check_password(passwd):
@@ -273,18 +279,18 @@ async def update_system(message):
             output = proc.stdout.readline()
             if output == b'' and proc.poll() is not None:
                 break
-            await msg_output.edit(content=loading_items[i %
-                                  (len(loading_items))] + output_text)
+            await msg_output.edit(content=format_as_code(loading_items[i %
+                                  (len(loading_items))], True) + " " + output_text)
             i += 1
         proc.wait()
         if proc.poll() == 0:
             output = "System updated sucessfully."
             await msg_output.edit(content=output)
         else:
-            output = "System not updated, error code: " + str(proc.poll())
+            output = "System not updated, error code: " + format_as_code(str(proc.poll()), True)
             await msg_output.edit(content=output)
     except Exception as e:
-        error = "Error ocurred: " + str(e)
+        error = "Error ocurred: " + format_as_code(str(e), True)
         error_type = "Error type: " + str((e.__class__.__name__))
         await channel.send(str(error))
         await channel.send(str(error_type))
@@ -314,8 +320,8 @@ async def upgrade_system(message):
             output = proc.stdout.readline()
             if output == b'' and proc.poll() is not None:
                 break
-            await msg_output.edit(content=loading_items[i %
-                                  (len(loading_items))] + output_text)
+            await msg_output.edit(content=format_as_code(loading_items[i %
+                                  (len(loading_items))], True) + " " + output_text)
             i += 1
         proc.wait()
 
@@ -323,9 +329,9 @@ async def upgrade_system(message):
             await channel.send("System upgraded sucessfully.")
         else:
             await channel.send("System not upgraded" +
-                               ", error code: " + str(proc.poll()))
+                               ", error code: " + format_as_code(str(proc.poll())), True)
     except Exception as e:
-        error = "Error ocurred: " + str(e)
+        error = "Error ocurred: " + format_as_code(str(e), True)
         error_type = "Error type: " + str((e.__class__.__name__))
         await channel.send(str(error))
         await channel.send(str(error_type))
@@ -346,7 +352,7 @@ async def install_package(message):
                                 type=discord.ChannelType.text)
     msg_output = await channel.send(output_text)
     try:
-        command = f'echo {message.content} | sudo -S {INSTALL_COMMAND} -y' + \
+        command = f'echo {message.content} | sudo -S {INSTALL_COMMAND} -yqq' + \
                   f' {message.content}'
         proc = subprocess.Popen(command, shell=True, stdin=None,
                                 stdout=subprocess.PIPE,
@@ -359,8 +365,8 @@ async def install_package(message):
                                  "0 newly installed" in str(output))
             if output == b'' and proc.poll() is not None:
                 break
-            await msg_output.edit(content=loading_items[i %
-                                  (len(loading_items))] + output_text)
+            await msg_output.edit(content=format_as_code(loading_items[i %
+                                  (len(loading_items))], True) + " " + output_text)
             i += 1
         proc.wait()
 
@@ -372,9 +378,9 @@ async def install_package(message):
         else:
             await msg_output.edit(content=f"Package {message.content} " +
                                            "not installed. Error code: " +
-                                           str(proc.poll()))
+                                           format_as_code(str(proc.poll()), True))
     except Exception as e:
-        error = "Error ocurred: " + str(e)
+        error = "Error ocurred: " + format_as_code(str(e), True)
         error_type = "Error type: " + str((e.__class__.__name__))
         await message.channel.send(str(error))
         await message.channel.send(str(error_type))
@@ -408,8 +414,8 @@ async def remove_package(message):
                                "0 to remove" in str(output))
             if output == b'' and proc.poll() is not None:
                 break
-            await msg_output.edit(content=loading_items[i %
-                                  (len(loading_items))] + output_text)
+            await msg_output.edit(content=format_as_code(loading_items[i %
+                                  (len(loading_items))], True) + " " + output_text)
             i += 1
         proc.wait()
         if already_removed:
@@ -420,9 +426,9 @@ async def remove_package(message):
         else:
             await msg_output.edit(content=f"Package {message.content} " +
                                            "not removed. Error code: " +
-                                           str(proc.poll()))
+                                           format_as_code(str(proc.poll()), True))
     except Exception as e:
-        error = "Error ocurred: " + str(e)
+        error = "Error ocurred: " + format_as_code(str(e), True)
         error_type = "Error type: " + str((e.__class__.__name__))
         await message.channel.send(str(error))
         await message.channel.send(str(error_type))
@@ -432,7 +438,7 @@ async def show_forbidden_commands(message):
     res = ""
     for element in FORBIDDEN_COMMANDS:
         res += element + ", "
-    await message.channel.send(res[:-2])
+    await message.channel.send(format_as_code(res[:-2]))
 
 
 async def stop_proccess(message):    # Send ctrl+c to current process
@@ -530,7 +536,7 @@ async def send_command(command, channel):
             else:
                 try:
                     output += line.decode('utf-8')
-                    await msg_output.edit(content=output)
+                    await msg_output.edit(content=format_as_code(output))
                 except Exception as e:
                     msg_error = str(e)
                     await channel.send(msg_error)
@@ -540,7 +546,7 @@ async def send_command(command, channel):
         error = CURRENT_PROCESS.communicate()
         CURRENT_PROCESS.wait()
     except Exception as e:
-        error = "Error: Command not found"
+        error = "Error: " + format_as_code("Command not found", True)
         await msg_output.edit(content=error)
     code = CURRENT_PROCESS.returncode
     CURRENT_PROCESS = None
@@ -713,7 +719,7 @@ async def on_message(message):
                 code, msg = await send_command(com, message.channel)
                 if code != 0:
                     text = " Name or service not known"
-                    await msg.edit(content=text)
+                    await msg.edit(content=format_as_code(text))
             except Exception as e:
                 error = "Error ocurred: " + str(e)
                 error_type = "Error type: " + str((e.__class__.__name__))
@@ -726,9 +732,7 @@ async def on_message(message):
                 msg_edit = await message.channel.send(msg_text)
 
                 for i in range(25):
-                    com = "top -b -n 1 -o +%CPU | head -n 15 | awk " + \
-                          "'{OFS=\"\\t\"}; {print $1, $2, $5, $8, $9, +" \
-                          "$10, $NF}'"
+                    com = "top -b -n 1 -o +%CPU | head -n 15"
 
                     p = subprocess.Popen(com,
                                          stdout=subprocess.PIPE,
@@ -746,7 +750,7 @@ async def on_message(message):
                                     top_msg += line.decode('utf-8')
                                 except Exception as e:
                                     await message.channel.send(str(e))
-                        await msg_edit.edit(content=top_msg)
+                        await msg_edit.edit(content=format_as_code(top_msg))
                     except:
                         break
             except Exception as e:
