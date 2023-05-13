@@ -56,7 +56,7 @@ def load_config(config_file):
     config = configparser.ConfigParser()
     config.read(config_file)
     TOKEN = config.get('GENERAL', 'token')
-    GUILD_ID = config.get('GENERAL', 'guild_id')
+    GUILD_ID = int(config.get('GENERAL', 'guild_id'))
     CHANNELS_NAME = json.loads(config.get('GENERAL', 'channels_name'))
     PASSWORD = config.get('GENERAL', 'password')
     SHARED_FOLDER = config.get('FILES', 'shared_folder')
