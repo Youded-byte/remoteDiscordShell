@@ -543,6 +543,8 @@ async def send_command(command, channel):
             n_lines += 1
         error = CURRENT_PROCESS.communicate()
         CURRENT_PROCESS.wait()
+        if CURRENT_PROCESS.returncode != 0:
+            raise Exception("Command not found")
     except Exception as e:
         error = "Error: " + format_as_code("Command not found", True)
         await msg_output.edit(content=error)
